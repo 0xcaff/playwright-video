@@ -1,6 +1,7 @@
 import Debug from 'debug';
 import { EventEmitter } from 'events';
-import { CDPSession, ChromiumBrowserContext, Page } from 'playwright-core';
+import { ChromiumBrowserContext, Page } from 'playwright-core';
+import { Protocol } from 'playwright-core/types/protocol';
 import { ensurePageType } from './utils';
 
 const debug = Debug('playwright-video:ScreencastFrameCollector');
@@ -86,4 +87,14 @@ export class ScreencastFrameCollector extends EventEmitter {
 
     debug('stopped');
   }
+}
+
+interface CDPSession {
+  detach(): Promise<void>;
+  send(method: string, params?: object): Promise<object>;
+  on<T extends keyof CDPEvents>(event: T, listener: (payload: CDPEvents[T]) => void): void;
+}
+
+interface CDPEvents {
+  'Page.screencastFrame': Protocol.Page.screencastFramePayload;
 }
