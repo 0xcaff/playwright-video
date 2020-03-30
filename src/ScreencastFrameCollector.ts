@@ -7,29 +7,26 @@ const debug = Debug('playwright-video:ScreencastFrameCollector');
 
 export class ScreencastFrameCollector extends EventEmitter {
   public static async create(page: Page): Promise<ScreencastFrameCollector> {
-    ensurePageType(page);
-
-    const collector = new ScreencastFrameCollector(page);
-
-    await collector._buildClient();
+    const client = await ScreencastFrameCollector.cdpSessionForPage(page);
+    const collector = new ScreencastFrameCollector(client);
     collector._listenForFrames();
 
     return collector;
   }
 
-  // public for tests
-  public _client: CDPSession;
-  private _page: Page;
-  private _stopped = false;
-
-  protected constructor(page: Page) {
-    super();
-    this._page = page;
+  private static async cdpSessionForPage(page: Page): Promise<CDPSession> {
+    ensurePageType(page);
+    const context = page.context() as ChromiumBrowserContext;
+    return await context.newCDPSession(page);
   }
 
-  private async _buildClient(): Promise<void> {
-    const context = this._page.context() as ChromiumBrowserContext;
-    this._client = await context.newCDPSession(this._page);
+  // public for tests
+  public _client: CDPSession;
+  private _stopped = false;
+
+  protected constructor(client: CDPSession) {
+    super();
+    this._client = client;
   }
 
   private _listenForFrames(): void {
