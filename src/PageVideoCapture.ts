@@ -1,5 +1,5 @@
 import Debug from 'debug';
-import { Page } from 'playwright-core';
+import { Page } from './utils';
 import { ScreencastFrameCollector } from './ScreencastFrameCollector';
 import { VideoFrameBuilder } from './VideoFrameBuilder';
 import { VideoWriter } from './VideoWriter';
